@@ -150,6 +150,30 @@ func (c *Reconciler) reconcileKPA(ctx context.Context, rev *v1alpha1.Revision) e
 	return nil
 }
 
+func (c *Reconciler) reconcileVS(ctx context.Context, rev *v1alpha1.Revision) error {
+	ns := rev.Namespace
+	vsName := rev.Name
+	logger := logging.FromContext(ctx)
+
+	virtualServicesClient := c.SharedClientSet.NetworkingV1alpha3().VirtualServices(ns)
+
+	_, err := virtualServicesClient.Get(vsName, metav1.GetOptions{})
+	if apierrs.IsNotFound(err) {
+		// VirtualService does not exist. Create it.
+		_, err := virtualServicesClient.Create(resources.MakeVirtualService(rev))
+		if err != nil {
+			logger.Errorf("Error creating VirtualService %q: %v", vsName, err)
+			return err
+		}
+		logger.Infof("Created vs %q", vsName)
+	} else if err != nil {
+		logger.Errorf("Error reconciling vs %q: %v", vsName, err)
+		return err
+	}
+
+	return nil
+}
+
 func (c *Reconciler) reconcileService(makeK8sService func(rev *v1alpha1.Revision) *corev1.Service) func(ctx context.Context, rev *v1alpha1.Revision) error {
 	return func(ctx context.Context, rev *v1alpha1.Revision) error {
 		desiredService := makeK8sService(rev)

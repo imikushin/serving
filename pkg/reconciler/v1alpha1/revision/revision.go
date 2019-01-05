@@ -379,11 +379,14 @@ func (c *Reconciler) reconcile(ctx context.Context, rev *v1alpha1.Revision) erro
 			name: "user deployment",
 			f:    c.reconcileDeployment,
 		}, {
-			name: "user k8s service",
-			f:    c.reconcileService(resources.MakeK8sService),
-		}, {
+		// 	name: "user k8s service",
+		// 	f:    c.reconcileService(resources.MakeK8sService),
+		// }, {
 			name: "internal k8s service",
 			f:    c.reconcileService(resources.MakeK8sServiceInternal),
+		}, {
+			name: "VirtualService",
+			f:    c.reconcileVS,
 		}, {
 			// Ensures our namespace has the configuration for the fluentd sidecar.
 			name: "fluentd configmap",

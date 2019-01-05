@@ -53,7 +53,7 @@ func MakeK8sService(rev *v1alpha1.Revision) *corev1.Service {
 		Spec: corev1.ServiceSpec{
 			Ports:        servicePorts,
 			Type:         corev1.ServiceTypeExternalName,
-			ExternalName: names.ActivatorOrInternalK8sService(rev),
+			ExternalName: "istio-ingressgateway.istio-system.svc.cluster.local", // TODO(imikushin) replace with a func call
 		},
 	}
 }
